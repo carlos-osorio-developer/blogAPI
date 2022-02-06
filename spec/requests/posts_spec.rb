@@ -12,7 +12,7 @@ RSpec.describe "Posts", type: :request do
   end
 
   describe "with data in DB" do
-    let(:posts) { create_list(:post, 10, published: true) }
+    let!(:posts) { create_list(:post, 10, published: true) }
 
     it "returns all posts" do
       get "/posts"
