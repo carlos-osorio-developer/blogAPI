@@ -1,4 +1,9 @@
 class PostsController < ApplicationController
+
+  rescue_from Exception do |exception|
+    render json: { error: exception.message }, status: :internal_server_error
+  end
+
   def index
     @posts = Post.where(published: true).order(created_at: :desc)
     render json: @posts, status: :ok
@@ -18,7 +23,7 @@ class PostsController < ApplicationController
     if @post.save
       render json: @post, status: :created
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render json: {errors: @post.errors}, status: :unprocessable_entity
     end
   end
 
@@ -27,7 +32,7 @@ class PostsController < ApplicationController
     if @post.update(update_params)
       render json: @post, status: :ok
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render json: {errors: @post.errors}, status: :unprocessable_entity
     end
   end
 

@@ -67,10 +67,10 @@ RSpec.describe "Posts", type: :request do
         } 
       }
 
-      post "/posts", params: req_payload
+      post "/posts", params: req_payload      
       payload = JSON.parse(response.body)      
-      expect(payload).not_to be_empty
-      expect(payload['error']).not_to be_nil
+      expect(payload).not_to be_empty      
+      expect(payload['errors']).not_to be_nil
       expect(response).to have_http_status(:unprocessable_entity)
     end      
   end
