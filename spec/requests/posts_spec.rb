@@ -9,6 +9,20 @@ RSpec.describe "Posts", type: :request do
       expect(payload).to be_empty
       expect(response).to have_http_status(200) 
     end    
+
+    describe "search" do
+      let!(:post1) { create(:published_post, title: "Post 1") }
+      let!(:post2) { create(:published_post, title: "Post 2") }
+      let!(:post3) { create(:published_post, title: "Post 3") }
+      it "filters by title" do
+        get "/posts?title=2"
+        payload = JSON.parse(response.body)
+        expect(payload.length).to eq(1)
+        expect(payload.first["title"]).to eq("Post 2")
+        expect(response).to have_http_status(200)
+      end
+
+    
   end
 
   describe "with data in DB" do
