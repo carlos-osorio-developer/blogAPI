@@ -36,66 +36,65 @@ RSpec.describe "Posts", type: :request do
   end
 
   describe "POST /posts" do
-    !let (:user) { create(:user) }
+    let!(:user) { create(:user) }
     
     it "creates a post" do      
 
       req_payload = {
         post: {
           title: "Post title",
-          body: "Post body",
+          content: "Post body",
           published: true,
           user_id: user.id
         } 
       }
 
       post "/posts", params: req_payload
-      payload = JSON.parse(response.body)
+      payload = JSON.parse(response.body)            
       expect(payload).not_to be_empty
       expect(payload['id']).not_to be_nil
       expect(payload['title']).to eq("Post title")
-      expect(payload['body']).to eq("Post body")
-      expect(response).to have_http_status(201)
+      expect(payload['content']).to eq("Post body")
+      expect(response).to have_http_status(201)# 201 same as :created
     end
 
     it "returns an error on invalid post" do
       req_payload = {
-        post: {
-          title: "",
-          body: "",
+        post: {          
+          content: "",
           published: true,
           user_id: user.id
         } 
       }
 
       post "/posts", params: req_payload
-      payload = JSON.parse(response.body)
+      payload = JSON.parse(response.body)      
       expect(payload).not_to be_empty
-      expect(payload['errors']).not_to be_empty
+      expect(payload['error']).not_to be_nil
       expect(response).to have_http_status(:unprocessable_entity)
     end      
   end
 
   describe "PUT /posts/:id" do
-    !let (:article) { create(:post, published: true) }
+    let!(:article) { create(:post, published: true) }
 
-    it "creates a post" do
+    it "updates a post" do
 
       req_payload = {
         post: {
           title: "Post new title",
-          body: "Post new body",
+          content: "Post new body",
           published: true
         }
       }        
 
       put "/posts/#{article.id}", params: req_payload
-      payload = JSON.parse(response.body)
+      payload = JSON.parse(response.body)      
       expect(payload).not_to be_empty
       expect(payload['id']).to eq(article.id)
       expect(payload['title']).to eq("Post new title")
-      expect(payload['body']).to eq("Post new body")
-      expect(response).to have_http_status(201)
+      expect(payload['content']).to eq("Post new body")
+      expect(response).to have_http_status(:ok)
     end
 
     it "returns an error on invalid update" do
