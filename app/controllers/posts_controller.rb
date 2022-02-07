@@ -1,4 +1,5 @@
 class PostsController < ApplicationController
+  before_action :authenticate_user!, only: [:create, :update]
 
   rescue_from Exception do |exception|
     render json: { error: exception.message }, status: :internal_server_error
@@ -49,4 +50,17 @@ class PostsController < ApplicationController
     params.require(:post).permit(:title, :content, :published)
   end
   
+  def authenticate_user!
+    headers = request.headers
+    token_regex = /Bearer (\w+)/    
+
+    if headers['Authorization'].present? && headers['Authorization'].match(token_regex)
+      token = headers['Authorization'].match(token_regex)[1]
+      if Current.user = User.find_by_auth_token(token)user
+        @current_user = Current.user
+      else
+        render json: {error: 'Invalid token'}, status: :unauthorized
+      end
+    end
+  end
 end
