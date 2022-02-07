@@ -6,6 +6,9 @@ class PostsController < ApplicationController
 
   def index
     @posts = Post.where(published: true).order(created_at: :desc)
+    if params[:search].present?      
+      @posts = @posts.where("title LIKE ?", "%#{params[:search]}%")
+    end
     render json: @posts, status: :ok
   end
 
@@ -34,7 +37,7 @@ class PostsController < ApplicationController
     else
       render json: {errors: @post.errors}, status: :unprocessable_entity
     end
-  end
+  end  
 
   #add whitelisted params
   private
