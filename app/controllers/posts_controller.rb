@@ -5,12 +5,12 @@ class PostsController < ApplicationController
   end
 
   def index
-    @posts = Post.where(published: true).order(created_at: :desc)
+    @posts = Post.where(published: true).includes(:user).order(created_at: :desc)
     if params[:search].present?      
       @posts = @posts.where("title LIKE ?", "%#{params[:search]}%")
     end
     render json: @posts, status: :ok
-  end
+  end  
 
   def show
     @post = Post.find(params[:id])
