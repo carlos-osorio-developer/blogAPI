@@ -57,6 +57,30 @@ RSpec.describe "Posts", type: :request do
       expect(payload['body']).to eq("Post body")
       expect(response).to have_http_status(201)
     end
+    
+  end
+
+  describe "PUT /posts/:id" do
+    !let (:article) { create(:post, published: true) }
+
+    it "creates a post" do
+
+      req_payload = {
+        post: {
+          title: "Post new title",
+          body: "Post new body",
+          published: true
+        }
+      }        
+
+      put "/posts/#{article.id}", params: req_payload
+      payload = JSON.parse(response.body)
+      expect(payload).not_to be_empty
+      expect(payload['id']).to eq(article.id)
+      expect(payload['title']).to eq("Post new title")
+      expect(payload['body']).to eq("Post new body")
+      expect(response).to have_http_status(201)
+    end
   end
 end
 
