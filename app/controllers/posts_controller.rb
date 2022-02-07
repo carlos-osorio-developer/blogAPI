@@ -26,8 +26,7 @@ class PostsController < ApplicationController
     @post = Post.new
   end
 
-  def create   
-    byebug 
+  def create       
     @post = Current.user.posts.new(post_params)
     if @post.save
       render json: @post, status: :created
@@ -57,8 +56,7 @@ class PostsController < ApplicationController
   
   def authenticate_user!    
     token_regex = /Bearer (\w+)/    
-    headers = request.headers  
-    byebug  
+    headers = request.headers      
     if headers['Authorization'].present? && headers['Authorization'].match(token_regex)
       token = headers['Authorization'].match(token_regex)[1]      
       if(Current.user = User.find_by_auth_token(token))

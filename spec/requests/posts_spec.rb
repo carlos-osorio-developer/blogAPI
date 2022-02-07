@@ -57,6 +57,7 @@ RSpec.describe "Posts", type: :request do
 
   describe "POST /posts" do
     let!(:user) { create(:user) }
+    let!(:headers) { { 'Authorization' => "Bearer #{user.auth_token}" } }
     
     it "creates a post" do      
 
@@ -69,8 +70,8 @@ RSpec.describe "Posts", type: :request do
         } 
       }
 
-      post "/posts", params: req_payload
-      payload = JSON.parse(response.body)            
+      post "/posts", params: req_payload, headers: headers
+      payload = JSON.parse(response.body)
       expect(payload).not_to be_empty
       expect(payload['id']).not_to be_nil
       expect(payload['title']).to eq("Post title")
@@ -87,7 +88,7 @@ RSpec.describe "Posts", type: :request do
         } 
       }
 
-      post "/posts", params: req_payload      
+      post "/posts", params: req_payload, headers: headers
       payload = JSON.parse(response.body)      
       expect(payload).not_to be_empty      
       expect(payload['errors']).not_to be_nil
@@ -96,7 +97,9 @@ RSpec.describe "Posts", type: :request do
   end
 
   describe "PUT /posts/:id" do
-    let!(:article) { create(:post, published: true) }
+    let!(:user) { create(:user) }
+    let!(:headers) { { 'Authorization' => "Bearer #{user.auth_token}" } }
+    let!(:article) { create(:published_post, user_id: user.id) }
 
     it "updates a post" do
 
@@ -108,7 +111,7 @@ RSpec.describe "Posts", type: :request do
         }
       }        
 
-      put "/posts/#{article.id}", params: req_payload
+      put "/posts/#{article.id}", params: req_payload, headers: headers
       payload = JSON.parse(response.body)      
       expect(payload).not_to be_empty
       expect(payload['id']).to eq(article.id)
@@ -126,10 +129,10 @@ RSpec.describe "Posts", type: :request do
         } 
       }
 
-      put "/posts/#{article.id}", params: req_payload
+      put "/posts/#{article.id}", params: req_payload      
       payload = JSON.parse(response.body)
-      expect(payload['errors']).not_to be_empty  
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(payload['error']).not_to be_empty  
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 end
