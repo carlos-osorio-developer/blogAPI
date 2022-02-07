@@ -5,7 +5,7 @@ RSpec.describe "Posts with authentication", type: :request do
   let!(:other_user) { create(:user) }
   let!(:user_post) { create(:post, user_id: user.id) }
   let!(:other_user_post) { create(:post, user_id: other_user.id, published: true) }
-  let!(:other_user_post_private { create(:post, user_id: other_user.id, published: false) }
+  let!(:other_user_post_private) { create(:post, user_id: other_user.id, published: false) }
 
   let!(:auth_headers) { { 'Autorization' => "Bearer #{user.auth_token}"} }
   let!(:other_auth_headers) { { 'Autorization' => "Bearer #{other_user.auth_token}"} }
