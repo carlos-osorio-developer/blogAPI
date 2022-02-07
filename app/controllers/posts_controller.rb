@@ -6,6 +6,10 @@ class PostsController < ApplicationController
     render json: { error: exception.message }, status: :internal_server_error
   end
 
+  rescue_from ActiveRecord::RecordNotFound do |e|
+    render json: {error: e.message}, status: :not_found
+  end
+
   def index
     @posts = Post.where(published: true).includes(:user).order(created_at: :desc)
     if params[:search].present?      
