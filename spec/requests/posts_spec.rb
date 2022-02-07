@@ -57,7 +57,23 @@ RSpec.describe "Posts", type: :request do
       expect(payload['body']).to eq("Post body")
       expect(response).to have_http_status(201)
     end
-    
+
+    it "returns an error on invalid post" do
+      req_payload = {
+        post: {
+          title: "",
+          body: "",
+          published: true,
+          user_id: user.id
+        } 
+      }
+
+      post "/posts", params: req_payload
+      payload = JSON.parse(response.body)
+      expect(payload).not_to be_empty
+      expect(payload['errors']).not_to be_empty
+      expect(response).to have_http_status(:unprocessable_entity)
+    end      
   end
 
   describe "PUT /posts/:id" do
@@ -80,6 +96,21 @@ RSpec.describe "Posts", type: :request do
       expect(payload['title']).to eq("Post new title")
       expect(payload['body']).to eq("Post new body")
       expect(response).to have_http_status(201)
+    end
+
+    it "returns an error on invalid update" do
+      req_payload = {
+        post: {
+          title: nil,
+          body: nil,
+          published: true          
+        } 
+      }
+
+      put "/posts/#{article.id}", params: req_payload
+      payload = JSON.parse(response.body)
+      expect(payload['errors']).not_to be_empty  
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 end
