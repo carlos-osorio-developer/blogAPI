@@ -7,26 +7,34 @@ RSpec.describe "Posts with authentication", type: :request do
   let!(:other_user_post) { create(:post, user_id: other_user.id, published: true) }
   let!(:other_user_post_private) { create(:post, user_id: other_user.id, published: false) }
 
-  let!(:auth_headers) { { 'Autorization' => "Bearer #{user.auth_token}"} }
-  let!(:other_auth_headers) { { 'Autorization' => "Bearer #{other_user.auth_token}"} }
+  let!(:auth_headers) { { 'Authorization' => "Bearer #{user.auth_token}"} }
+  let!(:other_auth_headers) { { 'Authorization' => "Bearer #{other_user.auth_token}"} }
 
   describe "GET /posts/:id" do
     context "with valid auth" do
       context "when requesting another user post" do
         context "when requesting a public post" do
-          it "returns the post" do
-            get "/posts/#{other_user_post.id}", headers: auth_headers
-            response = JSON.parse(response.body)
-            expect(response).to have_http_status(200)
-            expect(response["id"]).to eq(other_user_post.id)
+          before { get "/posts/#{other_user_post.id}", headers: auth_headers }
+
+          context "payload" do
+            subject { payload }
+            it { is_expected.to include(:id) }
+          end
+          context "response" do
+            subject { response }
+            it { is_expected.to have_http_status(:ok) }
           end
         end
         context "when requesting a private post" do          
-          it "returns an error" do
-            get "/posts/#{other_user_post_private.id}", headers: auth_headers
-            response = JSON.parse(response.body)
-            expect(response).to have_http_status(404)
-            expect(response["error"]).to eq("Not Found")
+          before { get "/posts/#{other_user_post_private.id}", headers: auth_headers }
+
+          context "payload" do
+            subject { payload }
+            it { is_expected.to include(:error) }
+          end
+          context "response" do
+            subject { response }
+            it { is_expected.to have_http_status(:unauthorized) }
           end
         end
       end
@@ -40,4 +48,10 @@ RSpec.describe "Posts with authentication", type: :request do
 
   describe "PUT /posts/:id" do
   end
+
+  private
+
+  def payload
+    JSON.parse(response.body).with_indifferent_access
+  end 
 end

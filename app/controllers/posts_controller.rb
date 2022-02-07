@@ -13,17 +13,22 @@ class PostsController < ApplicationController
     render json: @posts, status: :ok
   end  
 
-  def show
+  def show    
     @post = Post.find(params[:id])
-    render json: @post, status: :ok
+    if (@post.published || @post.user == Current.user)
+      render json: @post, status: :ok
+    else
+      render json: { error: "You are not authorized to view this post." }, status: :unauthorized      
+    end
   end
 
   def new
     @post = Post.new
   end
 
-  def create
-    @post = Post.new(post_params)
+  def create   
+    byebug 
+    @post = Current.user.posts.new(post_params)
     if @post.save
       render json: @post, status: :created
     else
@@ -32,7 +37,7 @@ class PostsController < ApplicationController
   end
 
   def update
-    @post = Post.find(params[:id])
+    @post = Current.user.posts.find(params[:id])
     if @post.update(update_params)
       render json: @post, status: :ok
     else
@@ -43,24 +48,24 @@ class PostsController < ApplicationController
   #add whitelisted params
   private
   def post_params
-    params.require(:post).permit(:title, :content, :published, :user_id)
+    params.require(:post).permit(:title, :content, :published)
   end
 
   def update_params
     params.require(:post).permit(:title, :content, :published)
   end
   
-  def authenticate_user!
-    headers = request.headers
+  def authenticate_user!    
     token_regex = /Bearer (\w+)/    
-
+    headers = request.headers  
+    byebug  
     if headers['Authorization'].present? && headers['Authorization'].match(token_regex)
-      token = headers['Authorization'].match(token_regex)[1]
-      if Current.user = User.find_by_auth_token(token)user
-        @current_user = Current.user
-      else
-        render json: {error: 'Invalid token'}, status: :unauthorized
+      token = headers['Authorization'].match(token_regex)[1]      
+      if(Current.user = User.find_by_auth_token(token))
+        return
       end
     end
+
+    render json: {error: 'Unauthorized'}, status: :unauthorized
   end
 end
