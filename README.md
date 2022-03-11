@@ -22,7 +22,7 @@ To get a local copy up and running follow these simple example steps.
 
 - A terminal with your github account logged in
 
-### Setup
+### Instructions
 
 - Use your github account and your terminal to clone this repository to your computer:
 
